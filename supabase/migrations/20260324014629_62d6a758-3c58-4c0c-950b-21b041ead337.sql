@@ -1,0 +1,1 @@
+UPDATE parts SET stock = v.s, estimated_price = v.p FROM (VALUES ('100000005', 8, 54.55),('100000010', 18, 138.025),('100000011', 47, 118.275),('100000014', 4, 66.875),('100000015', 12, 66.925)) AS v(m, s, p) WHERE parts.material = v.m;

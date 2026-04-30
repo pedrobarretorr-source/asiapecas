@@ -1,0 +1,1 @@
+UPDATE parts SET machine_model = replace(replace(machine_model, '（', '('), '）', ')') WHERE machine_model LIKE '%（%' OR machine_model LIKE '%）%';

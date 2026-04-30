@@ -1,0 +1,28 @@
+# Public storefront and parts open to crawlers
+User-agent: *
+Allow: /
+Allow: /cotacao
+Allow: /cotacao/p/
+Allow: /cotacao/c/
+Allow: /cotacao/m/
+Allow: /cotacao/categorias
+Allow: /cotacao/modelos
+
+# Internal tools — never index
+Disallow: /clientes
+Disallow: /vendas
+Disallow: /pedidos
+Disallow: /prospeccao
+Disallow: /pesquisa-mercado
+Disallow: /pos-venda
+Disallow: /relatorio
+Disallow: /assistente
+Disallow: /treinamento
+Disallow: /catalogo
+Disallow: /estoque
+Disallow: /admin/
+Disallow: /login
+Disallow: /reset-password
+
+Sitemap: https://asiapecas.com.br/sitemap.xml
+Sitemap: https://ustzlgdhzgkhvyunvxyw.supabase.co/functions/v1/generate-sitemap
