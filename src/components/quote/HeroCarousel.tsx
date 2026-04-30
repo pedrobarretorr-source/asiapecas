@@ -1,20 +1,14 @@
 import heroBackgroundDesktop from "@/assets/hero2.png";
 import heroBackgroundMobile from "@/assets/HERO-MOBILE.png";
-import iconPneus from "@/assets/icones/ICONE-PNEUS.svg";
-import iconMotores from "@/assets/icones/ICONE-MOTORES.svg";
-import iconFiltros from "@/assets/icones/Icone-Filtros.svg";
-import iconHidraulico from "@/assets/icones/icone-hidraulico.svg";
-import iconEletrico from "@/assets/icones/ICONE-ELÉTRICO.svg";
-import iconOutros from "@/assets/icones/icone-outros.svg";
 import { type Lang } from "./translations";
 
 const HERO_CATEGORIES = [
-  { label: "Pneus", href: "/cotacao?partCategory=Pneus#catalogo", icon: iconPneus },
-  { label: "Motores", href: "/cotacao?partCategory=Motor%20e%20Componentes#catalogo", icon: iconMotores },
-  { label: "Filtros", href: "/cotacao?partCategory=Filtros#catalogo", icon: iconFiltros },
-  { label: "Hidráulico", href: "/cotacao?partCategory=Sistema%20Hidráulico#catalogo", icon: iconHidraulico },
-  { label: "Elétrico", href: "/cotacao?partCategory=Sistema%20Elétrico#catalogo", icon: iconEletrico },
-  { label: "Outros", href: "/cotacao#catalogo", icon: iconOutros },
+  { label: "Pneus", href: "/cotacao?partCategory=Pneus#catalogo", icon: "/icones/ICONE-PNEUS.svg" },
+  { label: "Motores", href: "/cotacao?partCategory=Motor%20e%20Componentes#catalogo", icon: "/icones/ICONE-MOTORES.svg" },
+  { label: "Filtros", href: "/cotacao?partCategory=Filtros#catalogo", icon: "/icones/Icone-Filtros.svg" },
+  { label: "Hidráulico", href: "/cotacao?partCategory=Sistema%20Hidráulico#catalogo", icon: "/icones/icone-hidraulico.svg" },
+  { label: "Elétrico", href: "/cotacao?partCategory=Sistema%20Elétrico#catalogo", icon: "/icones/ICONE-EL%C3%89TRICO.svg" },
+  { label: "Outros", href: "/cotacao#catalogo", icon: "/icones/icone-outros.svg" },
 ];
 
 export default function HeroCarousel({ fallback }: { lang: Lang; fallback: React.ReactNode }) {

@@ -1,16 +1,12 @@
 import { type Lang } from "./translations";
-import xcmgLogo from "@/assets/partners/icone xcmg.svg";
-import cumminsLogo from "@/assets/partners/ICONE CUMMINS.svg";
-import fleetguardLogo from "@/assets/partners/ICONE FLEET.svg";
-import carraroLogo from "@/assets/partners/ICONE CARRARO.svg";
 
 type Partner = { name: string; logo: string; className?: string };
 
 const PARTNERS: Partner[] = [
-  { name: "XCMG", logo: xcmgLogo, className: "max-w-[132px] md:max-w-[172px]" },
-  { name: "Cummins", logo: cumminsLogo, className: "max-w-[144px] md:max-w-[188px]" },
-  { name: "Fleetguard", logo: fleetguardLogo, className: "max-w-[154px] md:max-w-[204px]" },
-  { name: "Carraro", logo: carraroLogo, className: "max-w-[146px] md:max-w-[196px]" },
+  { name: "XCMG", logo: "/parceiros/icone xcmg.svg", className: "max-w-[132px] md:max-w-[172px]" },
+  { name: "Cummins", logo: "/parceiros/ICONE CUMMINS.svg", className: "max-w-[144px] md:max-w-[188px]" },
+  { name: "Fleetguard", logo: "/parceiros/ICONE FLEET.svg", className: "max-w-[154px] md:max-w-[204px]" },
+  { name: "Carraro", logo: "/parceiros/ICONE CARRARO.svg", className: "max-w-[146px] md:max-w-[196px]" },
 ];
 
 const LOOP = [...PARTNERS, ...PARTNERS];
