@@ -1,8 +1,10 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Menu, X } from "lucide-react";
 import logoAsia from "@/assets/LOGO-ATUALIZADO.png";
 import { type Lang } from "@/components/quote/translations";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 const CONTACT_HREF = "/#contato";
 
@@ -110,8 +112,8 @@ function LanguageDropdown({
           aria-label={`Idioma: ${current.nativeName}`}
           className={
             mobile
-              ? "flex w-full items-center justify-between rounded-lg border border-secondary-foreground/15 bg-secondary-foreground/8 px-3 py-2.5 text-sm font-medium text-secondary-foreground transition-colors hover:bg-secondary-foreground/14"
-              : "flex h-9 items-center justify-center gap-1.5 rounded-full border border-white/12 bg-white/4 px-3 text-white transition-colors hover:bg-white/8"
+              ? "flex w-full items-center justify-between rounded-lg border border-white/15 bg-white/5 px-3 py-2.5 text-sm font-medium text-white transition-colors hover:bg-white/10"
+              : "flex h-9 items-center justify-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-3 text-white transition-colors hover:bg-white/10"
           }
         >
           <span className="flex items-center gap-2">
@@ -149,47 +151,97 @@ interface PublicHeaderProps {
 export default function PublicHeader({ lang, onLangChange }: PublicHeaderProps) {
   const navItems = NAV_ITEMS[lang];
   const contactLabel = lang === "en" ? "Contact" : lang === "es" ? "Contacto" : "Contato";
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-white/10 bg-[rgba(5,5,5,0.94)] text-white backdrop-blur-xl">
-      <div className="mx-auto max-w-7xl px-3 py-1.5 md:px-6 md:py-2">
-        <div className="flex items-center gap-2 md:gap-5">
-          <Link to="/" className="flex shrink-0 items-center gap-2">
-            <span className="relative -my-1 flex h-11 w-[4.5rem] shrink-0 overflow-visible sm:h-14 sm:w-24 md:-my-3 md:h-28 md:w-48 lg:w-56">
-              <img
-                src={logoAsia}
-                alt="Ásia Peças e Máquinas"
-                className="h-full w-full object-contain object-center"
-                loading="eager"
-                decoding="async"
-              />
-            </span>
-            <span className="hidden min-w-0 md:block">
-              <span className="block text-[0.68rem] font-semibold uppercase tracking-[0.24em] text-primary md:text-xs">
-                Peças e Máquinas
-              </span>
+    <header className="sticky top-0 z-40 w-full border-b border-white/10 bg-[rgba(5,5,5,0.94)] text-white backdrop-blur-xl">
+      <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="flex h-16 items-center justify-between gap-3 sm:h-[72px] lg:gap-6">
+          <Link to="/" className="flex items-center gap-2 shrink-0" aria-label="Ásia Peças e Máquinas">
+            <img
+              src={logoAsia}
+              alt="Ásia Peças e Máquinas"
+              className="block h-9 w-auto sm:h-10 md:h-11 lg:h-12"
+              loading="eager"
+              decoding="async"
+            />
+            <span className="hidden text-xs font-semibold uppercase tracking-[0.24em] text-primary xl:inline-block">
+              Peças e Máquinas
             </span>
           </Link>
 
-          <nav className="flex min-w-0 flex-1 items-center overflow-x-auto rounded-full border border-white/10 bg-white/6 px-1.5 py-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden md:px-3 md:py-2">
+          <nav className="hidden h-11 items-center rounded-full border border-white/10 bg-white/5 px-2 lg:flex">
             {navItems.map((item) => (
               <HeaderNavLink
                 key={item.href}
                 href={item.href}
                 label={item.label}
-                className="whitespace-nowrap rounded-full px-2.5 py-1.5 text-[0.65rem] font-medium text-white/74 transition-colors hover:bg-white/8 hover:text-white md:px-4 md:py-2 md:text-sm"
+                className="flex h-9 items-center whitespace-nowrap rounded-full px-4 text-sm font-medium text-white/75 transition-colors hover:bg-white/10 hover:text-white"
               />
             ))}
           </nav>
 
-          <div className="flex shrink-0 items-center gap-2">
-            <LanguageDropdown lang={lang} onSelect={onLangChange} />
+          <div className="flex items-center gap-2 shrink-0">
+            <div className="hidden sm:block">
+              <LanguageDropdown lang={lang} onSelect={onLangChange} />
+            </div>
             <a
               href={CONTACT_HREF}
-              className="hidden rounded-full bg-primary px-3 py-2 text-[0.65rem] font-medium text-primary-foreground transition-opacity hover:opacity-90 sm:inline-flex md:px-4 md:text-xs"
+              className="hidden h-10 items-center rounded-full bg-primary px-4 text-xs font-semibold text-primary-foreground transition-opacity hover:opacity-90 sm:inline-flex md:text-sm"
             >
               {contactLabel}
             </a>
+
+            <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
+              <SheetTrigger asChild>
+                <button
+                  type="button"
+                  aria-label="Abrir menu"
+                  className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white transition-colors hover:bg-white/10 lg:hidden"
+                >
+                  <Menu className="h-5 w-5" />
+                </button>
+              </SheetTrigger>
+              <SheetContent
+                side="right"
+                className="w-[88vw] max-w-sm border-l border-white/10 bg-[rgba(5,5,5,0.98)] p-0 text-white"
+              >
+                <div className="flex items-center justify-between border-b border-white/10 px-5 py-4">
+                  <img src={logoAsia} alt="Ásia Peças e Máquinas" className="h-9 w-auto" />
+                  <button
+                    type="button"
+                    aria-label="Fechar menu"
+                    onClick={() => setMobileOpen(false)}
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/15 bg-white/5 transition-colors hover:bg-white/10"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+
+                <nav className="flex flex-col gap-1 px-4 py-5">
+                  {navItems.map((item) => (
+                    <HeaderNavLink
+                      key={item.href}
+                      href={item.href}
+                      label={item.label}
+                      onClick={() => setMobileOpen(false)}
+                      className="rounded-lg px-3 py-3 text-base font-medium text-white/85 transition-colors hover:bg-white/8 hover:text-white"
+                    />
+                  ))}
+                </nav>
+
+                <div className="mt-auto flex flex-col gap-3 border-t border-white/10 px-4 py-5">
+                  <LanguageDropdown lang={lang} onSelect={onLangChange} mobile />
+                  <a
+                    href={CONTACT_HREF}
+                    onClick={() => setMobileOpen(false)}
+                    className="inline-flex h-11 items-center justify-center rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+                  >
+                    {contactLabel}
+                  </a>
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
       </div>

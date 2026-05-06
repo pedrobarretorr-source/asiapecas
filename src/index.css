@@ -101,9 +101,47 @@
     @apply border-border;
   }
 
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  html,
+  body {
+    width: 100%;
+    /* `clip` prevents horizontal scrollbars without breaking position: sticky */
+    overflow-x: clip;
+  }
+
   body {
     @apply bg-background text-foreground font-sans;
     font-family: 'Inter', sans-serif;
+    min-width: 320px;
+  }
+
+  #root {
+    width: 100%;
+    min-height: 100vh;
+    overflow-x: clip;
+  }
+
+  /* Fluid media — never break the layout horizontally */
+  img,
+  svg,
+  video,
+  canvas,
+  iframe {
+    max-width: 100%;
+  }
+
+  img,
+  video {
+    height: auto;
+  }
+
+  /* Prevent very long unbroken strings (URLs, SKUs) from blowing out narrow viewports */
+  p, h1, h2, h3, h4, h5, h6, span, a, li, td, th, dd, dt, label {
+    overflow-wrap: anywhere;
   }
 
   h1, h2, h3, h4, h5, h6 {
