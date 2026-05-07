@@ -10,10 +10,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSales, useUpdateSaleStatus, useDeleteSale, type Sale } from "@/hooks/use-sales";
-import { Plus, Eye, Trash2, ClipboardList, FileDown, Settings } from "lucide-react";
+import { Plus, Eye, Trash2, ClipboardList, FileDown, Settings, FileCode2 } from "lucide-react";
 import QuoteRequestsTab from "@/components/quote/QuoteRequestsTab";
 import ProposalCustomizeDialog from "@/components/sales/ProposalCustomizeDialog";
 import ProposalConfigTab from "@/components/sales/ProposalConfigTab";
+import ProposalHtmlGeneratorTab from "@/components/sales/ProposalHtmlGeneratorTab";
 import { routes } from "@/lib/routes";
 
 const STATUS_MAP: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
@@ -54,6 +55,9 @@ export default function SalesPage() {
             <TabsTrigger value="vendas">Vendas</TabsTrigger>
             <TabsTrigger value="cotacoes" className="gap-1">
               <ClipboardList className="h-4 w-4" /> Cotações Recebidas
+            </TabsTrigger>
+            <TabsTrigger value="gerador-html" className="gap-1">
+              <FileCode2 className="h-4 w-4" /> Gerador HTML
             </TabsTrigger>
             <TabsTrigger value="config" className="gap-1">
               <Settings className="h-4 w-4" /> Configurações
@@ -141,6 +145,10 @@ export default function SalesPage() {
             <QuoteRequestsTab />
           </TabsContent>
 
+          <TabsContent value="gerador-html" className="mt-4">
+            <ProposalHtmlGeneratorTab />
+          </TabsContent>
+
           <TabsContent value="config" className="mt-4">
             <ProposalConfigTab />
           </TabsContent>
@@ -196,15 +204,18 @@ export default function SalesPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {detailSale.sale_items.map((item) => (
+                    {detailSale.sale_items.map((item) => {
+                      const price = item.sell_price > 0 ? item.sell_price : item.unit_price;
+                      return (
                       <TableRow key={item.id}>
                         <TableCell className="font-mono text-xs">{item.parts?.material || "—"}</TableCell>
                         <TableCell className="text-xs">{item.parts?.description || "—"}</TableCell>
                         <TableCell className="text-center">{item.quantity}</TableCell>
-                        <TableCell className="font-mono">R$ {item.unit_price.toLocaleString("pt-BR")}</TableCell>
-                        <TableCell className="font-mono font-medium">R$ {item.total_price.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</TableCell>
+                        <TableCell className="font-mono">R$ {price.toLocaleString("pt-BR")}</TableCell>
+                        <TableCell className="font-mono font-medium">R$ {(price * item.quantity).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</TableCell>
                       </TableRow>
-                    ))}
+                      );
+                    })}
                   </TableBody>
                 </Table>
               )}

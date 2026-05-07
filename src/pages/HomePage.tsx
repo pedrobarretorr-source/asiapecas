@@ -26,6 +26,7 @@ import {
 } from "lucide-react";
 import { type Lang } from "@/components/quote/translations";
 import { SEO, organizationLd } from "@/lib/seo";
+import { PUBLIC_WHATSAPP_URL } from "@/lib/whatsapp";
 
 type Metric = {
   icon: LucideIcon;
@@ -40,9 +41,6 @@ type IconCard = {
   title: string;
   desc: string;
 };
-
-const WHATSAPP_URL =
-  "https://wa.me/5595974009289?text=Ol%C3%A1%2C%20gostaria%20de%20informa%C3%A7%C3%B5es%20sobre%20pe%C3%A7as%20XCMG";
 
 const PAGE_COPY: Record<
   Lang,
@@ -512,7 +510,7 @@ export default function HomePage() {
     <div className="flex min-h-screen flex-col bg-background">
       <Sonner />
 
-      <PublicHeader lang={lang} onLangChange={setLang} onOpenB2B={() => setB2bOpen(true)} whatsappUrl={WHATSAPP_URL} />
+      <PublicHeader lang={lang} onLangChange={setLang} onOpenB2B={() => setB2bOpen(true)} whatsappUrl={PUBLIC_WHATSAPP_URL} />
 
       <SEO
         title={copy.seoTitle}
@@ -778,7 +776,7 @@ export default function HomePage() {
       <B2BLeadDialog lang={lang} open={b2bOpen} onOpenChange={setB2bOpen} />
       <ConsentBanner lang={lang} />
 
-      <WhatsAppFloatingButton href={WHATSAPP_URL} />
+      <WhatsAppFloatingButton href={PUBLIC_WHATSAPP_URL} />
     </div>
   );
 }

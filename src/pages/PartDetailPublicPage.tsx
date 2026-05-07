@@ -12,6 +12,7 @@ import { ChevronLeft, ShoppingCart, Package, ShieldCheck, MessageCircle, Tag } f
 import { useCartSession } from "@/hooks/use-cart-session";
 import { toast } from "sonner";
 import { track } from "@/lib/analytics";
+import { PUBLIC_WHATSAPP_URL } from "@/lib/whatsapp";
 import { useEffect } from "react";
 
 export default function PartDetailPublicPage() {
@@ -79,8 +80,6 @@ export default function PartDetailPublicPage() {
     track.addToCart(part);
     toast.success("Adicionado à cotação");
   };
-
-  const wppMsg = `Olá, gostaria de uma cotação para a peça ${part.material} - ${part.description}`;
 
   return (
     <>
@@ -166,7 +165,7 @@ export default function PartDetailPublicPage() {
                 <Button size="lg" className="gap-2" onClick={handleAdd} disabled={part.stock <= 0}>
                   <ShoppingCart className="h-5 w-5" /> Adicionar à cotação
                 </Button>
-                <a href={`https://wa.me/5595974009289?text=${encodeURIComponent(wppMsg)}`} target="_blank" rel="noopener noreferrer">
+                <a href={PUBLIC_WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
                   <Button size="lg" variant="outline" className="w-full gap-2 border-[hsl(142,71%,45%)] text-[hsl(142,71%,45%)] hover:bg-[hsl(142,71%,45%)]/10">
                     <MessageCircle className="h-5 w-5" /> WhatsApp
                   </Button>

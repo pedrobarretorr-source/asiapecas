@@ -21,6 +21,11 @@ export function defaultGreeting(name?: string | null): string {
     : `Olá, sou da Ásia Peças & Máquinas. Posso ajudar?`;
 }
 
+export const PUBLIC_WHATSAPP_MESSAGE = "Ol\u00e1, vim pelo site Asia Pe\u00e7as!";
+export const PUBLIC_WHATSAPP_URL = `https://wa.me/message/HUI75YYGCYL7F1?text=${encodeURIComponent(
+  PUBLIC_WHATSAPP_MESSAGE,
+)}`;
+
 export function formatWhatsAppLink(phone?: string | null, message?: string): string | null {
   const clean = sanitizePhone(phone);
   if (!clean) return null;

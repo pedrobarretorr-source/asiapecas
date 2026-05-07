@@ -210,8 +210,8 @@ export default function NewOrderPage() {
         notes: notes || null,
         payment_method: paymentMethod || null,
         payment_terms: paymentTerms || null,
-        items: cart.map(({ part_id, quantity, sell_price }) => ({
-          part_id, quantity, unit_price: sell_price,
+        items: cart.map(({ part_id, quantity, cost_price, sell_price }) => ({
+          part_id, quantity, unit_price: cost_price, sell_price,
         })),
       };
 

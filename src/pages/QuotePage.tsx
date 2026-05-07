@@ -12,8 +12,7 @@ import { type Lang } from "@/components/quote/translations";
 import { SEO, organizationLd } from "@/lib/seo";
 import { Input } from "@/components/ui/input";
 import { useCartSession } from "@/hooks/use-cart-session";
-
-const WHATSAPP_URL = "https://wa.me/5595974009289?text=Ol%C3%A1%2C%20gostaria%20de%20informa%C3%A7%C3%B5es%20sobre%20pe%C3%A7as%20XCMG";
+import { PUBLIC_WHATSAPP_URL } from "@/lib/whatsapp";
 
 function useDebouncedValue<T>(value: T, delay = 250): T {
   const [debounced, setDebounced] = useState(value);
@@ -98,7 +97,7 @@ export default function QuotePage() {
     <div className="flex min-h-screen flex-col bg-background">
       <Sonner />
 
-      <PublicHeader lang={lang} onLangChange={setLang} onOpenB2B={() => setB2bOpen(true)} whatsappUrl={WHATSAPP_URL} />
+      <PublicHeader lang={lang} onLangChange={setLang} onOpenB2B={() => setB2bOpen(true)} whatsappUrl={PUBLIC_WHATSAPP_URL} />
 
       <SEO
         title="Catalogo de pecas XCMG | Asia Pecas & Maquinas"
@@ -159,7 +158,7 @@ export default function QuotePage() {
       <B2BLeadDialog lang={lang} open={b2bOpen} onOpenChange={setB2bOpen} />
       <ConsentBanner lang={lang} />
 
-      <WhatsAppFloatingButton href={WHATSAPP_URL} />
+      <WhatsAppFloatingButton href={PUBLIC_WHATSAPP_URL} />
     </div>
   );
 }

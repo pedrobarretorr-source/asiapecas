@@ -8,6 +8,7 @@ export type SaleItem = {
   part_id: string | null;
   quantity: number;
   unit_price: number;
+  sell_price: number;
   total_price: number;
   parts?: { material: string; description: string } | null;
 };
@@ -32,7 +33,7 @@ export type SaleInsert = {
   payment_method?: string | null;
   payment_terms?: string | null;
   notes?: string | null;
-  items: { part_id: string; quantity: number; unit_price: number }[];
+  items: { part_id: string; quantity: number; unit_price: number; sell_price?: number }[];
 };
 
 export function useSales(statusFilter?: string) {
@@ -57,7 +58,7 @@ export function useCreateSale() {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: async ({ items, ...saleData }: SaleInsert) => {
-      const total = items.reduce((s, i) => s + i.quantity * i.unit_price, 0);
+      const total = items.reduce((s, i) => s + i.quantity * (i.sell_price ?? i.unit_price), 0);
       const { data: sale, error } = await supabase
         .from("sales")
         .insert({ ...saleData, total_amount: total })
@@ -70,7 +71,8 @@ export function useCreateSale() {
         part_id: i.part_id,
         quantity: i.quantity,
         unit_price: i.unit_price,
-        total_price: i.quantity * i.unit_price,
+        sell_price: i.sell_price ?? i.unit_price,
+        total_price: i.quantity * (i.sell_price ?? i.unit_price),
       }));
       const { error: itemsErr } = await supabase.from("sale_items").insert(saleItems);
       if (itemsErr) throw itemsErr;

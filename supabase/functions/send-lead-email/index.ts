@@ -1,3 +1,5 @@
+import nodemailer from "npm:nodemailer@6";
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -12,9 +14,6 @@ type LeadEmailPayload = {
   notes?: string | null;
   utm?: unknown;
 };
-
-const DEFAULT_TO = "contato@asiapecas.com.br";
-const DEFAULT_FROM = "Ásia Peças <no-reply@asiapecas.com.br>";
 
 function escapeHtml(value: unknown) {
   return String(value ?? "")
@@ -137,49 +136,46 @@ Deno.serve(async (req) => {
 
   try {
     const payload = (await req.json()) as LeadEmailPayload;
-    const resendApiKey = Deno.env.get("RESEND_API_KEY");
-    const to = Deno.env.get("LEAD_EMAIL_TO") || DEFAULT_TO;
-    const from = Deno.env.get("LEAD_EMAIL_FROM") || DEFAULT_FROM;
 
-    if (!resendApiKey) {
-      console.warn("RESEND_API_KEY is not configured. Lead email skipped.", payload.type);
-      return new Response(JSON.stringify({ ok: true, skipped: true, reason: "RESEND_API_KEY missing" }), {
+    const smtpHost = Deno.env.get("SMTP_HOST");
+    const smtpPort = parseInt(Deno.env.get("SMTP_PORT") ?? "465", 10);
+    const smtpUser = Deno.env.get("SMTP_USER");
+    const smtpPass = Deno.env.get("SMTP_PASS");
+    const to = Deno.env.get("LEAD_EMAIL_TO") || smtpUser || "vendas@asiapecas.com";
+
+    if (!smtpHost || !smtpUser || !smtpPass) {
+      console.warn("SMTP credentials not configured. Lead email skipped.", payload.type);
+      return new Response(JSON.stringify({ ok: true, skipped: true, reason: "SMTP credentials missing" }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    const subject = `[Ásia Peças] ${payload.title || "Novo formulário recebido"}`;
-    const response = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${resendApiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        from,
-        to: [to],
-        subject,
-        html: buildHtml(payload),
-        text: buildText(payload),
-        reply_to: typeof payload.fields?.Email === "string" ? payload.fields.Email : undefined,
-      }),
+    const transporter = nodemailer.createTransport({
+      host: smtpHost,
+      port: smtpPort,
+      secure: smtpPort === 465,
+      auth: { user: smtpUser, pass: smtpPass },
     });
 
-    const result = await response.json().catch(() => ({}));
-    if (!response.ok) {
-      console.error("Resend failed", result);
-      return new Response(JSON.stringify({ error: "Email provider failed", details: result }), {
-        status: 502,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
+    const replyTo = typeof payload.fields?.Email === "string" && payload.fields.Email
+      ? payload.fields.Email
+      : undefined;
 
-    return new Response(JSON.stringify({ ok: true, result }), {
+    await transporter.sendMail({
+      from: `"Ásia Peças" <${smtpUser}>`,
+      to,
+      subject: `[Ásia Peças] ${payload.title || "Novo formulário recebido"}`,
+      html: buildHtml(payload),
+      text: buildText(payload),
+      replyTo,
+    });
+
+    return new Response(JSON.stringify({ ok: true }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {
     console.error("send-lead-email error", error);
-    return new Response(JSON.stringify({ error: "Unexpected error" }), {
+    return new Response(JSON.stringify({ error: "Unexpected error", detail: String(error) }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

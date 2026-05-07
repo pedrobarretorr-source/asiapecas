@@ -1,13 +1,13 @@
 import { Sparkles, MessageCircle } from "lucide-react";
 import { useHasActivePromotions } from "@/hooks/use-active-promotions";
+import { PUBLIC_WHATSAPP_URL } from "@/lib/whatsapp";
 import { type Lang } from "./translations";
 
 interface Props {
   lang: Lang;
-  whatsapp?: string;
 }
 
-export default function PromoBanner({ lang, whatsapp = "5595974009289" }: Props) {
+export default function PromoBanner({ lang }: Props) {
   const hasPromo = useHasActivePromotions();
   if (!hasPromo) return null;
 
@@ -20,14 +20,6 @@ export default function PromoBanner({ lang, whatsapp = "5595974009289" }: Props)
 
   const cta = lang === "en" ? "Talk on WhatsApp" : lang === "es" ? "Hablar por WhatsApp" : "Falar no WhatsApp";
 
-  const wppText = encodeURIComponent(
-    lang === "en"
-      ? "Hello, I'd like to know about active promotions."
-      : lang === "es"
-      ? "Hola, me gustaría conocer las promociones activas."
-      : "Olá, gostaria de saber sobre as promoções ativas."
-  );
-
   return (
     <div className="bg-primary text-primary-foreground border-b border-primary-foreground/10">
       <div className="max-w-6xl mx-auto px-4 md:px-6 py-2.5 flex flex-wrap items-center justify-center gap-3 text-sm">
@@ -36,7 +28,7 @@ export default function PromoBanner({ lang, whatsapp = "5595974009289" }: Props)
           {msg}
         </span>
         <a
-          href={`https://wa.me/${whatsapp}?text=${wppText}`}
+          href={PUBLIC_WHATSAPP_URL}
           target="_blank"
           rel="noopener noreferrer"
           className="inline-flex items-center gap-1.5 bg-secondary text-secondary-foreground hover:opacity-90 transition-opacity px-3 py-1 rounded-full text-xs font-semibold"

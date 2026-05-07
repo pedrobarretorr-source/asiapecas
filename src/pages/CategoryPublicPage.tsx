@@ -11,6 +11,7 @@ import { useCategoryNameBySlug, useCategoryPageData } from "@/hooks/use-category
 import { useCartSession } from "@/hooks/use-cart-session";
 import { SEO, organizationLd, breadcrumbLd, itemListLd } from "@/lib/seo";
 import { track, trackServerConversion } from "@/lib/analytics";
+import { PUBLIC_WHATSAPP_URL } from "@/lib/whatsapp";
 import CategoryHero from "@/components/quote/CategoryHero";
 import RelatedChips from "@/components/quote/RelatedChips";
 import CategoryFAQ, { faqLd } from "@/components/quote/CategoryFAQ";
@@ -121,8 +122,7 @@ export default function CategoryPublicPage() {
   };
 
   const handleScrollToList = () => listRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-  const wppText = `Olá! Tenho interesse em ${categoryName || "peças"} XCMG.`;
-  const wppUrl = `https://wa.me/5595974009289?text=${encodeURIComponent(wppText)}`;
+  const wppUrl = PUBLIC_WHATSAPP_URL;
 
   const defaultTitle = `${categoryName} XCMG · ${total} em estoque · Ásia Peças`;
   const defaultDesc = `${total} ${categoryName?.toLowerCase()} originais e equivalentes para máquinas XCMG. Estoque real em Macapá-AP. Cotação rápida via WhatsApp em PT/EN/ES.`;

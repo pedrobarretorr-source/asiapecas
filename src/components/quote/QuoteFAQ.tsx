@@ -1,5 +1,6 @@
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { MessageCircle } from "lucide-react";
+import { PUBLIC_WHATSAPP_URL } from "@/lib/whatsapp";
 import { type Lang } from "./translations";
 
 const FAQ_COPY: Record<
@@ -128,7 +129,7 @@ export default function QuoteFAQ({ lang }: { lang: Lang }) {
 
         <div className="text-center">
           <a
-            href="https://wa.me/5595974009289?text=Ol%C3%A1%2C%20gostaria%20de%20falar%20com%20um%20especialista%20XCMG"
+            href={PUBLIC_WHATSAPP_URL}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 rounded-lg bg-[hsl(142,71%,45%)] px-6 py-3 font-medium text-white transition-opacity hover:opacity-90"

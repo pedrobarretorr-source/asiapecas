@@ -9,6 +9,7 @@ import { categorySlug } from "@/lib/slugs";
 import { useCartSession } from "@/hooks/use-cart-session";
 import { SEO, organizationLd, breadcrumbLd, itemListLd } from "@/lib/seo";
 import { track, trackServerConversion } from "@/lib/analytics";
+import { PUBLIC_WHATSAPP_URL } from "@/lib/whatsapp";
 import ModelHero from "@/components/quote/ModelHero";
 import RelatedChips from "@/components/quote/RelatedChips";
 import CategoryFAQ, { faqLd } from "@/components/quote/CategoryFAQ";
@@ -66,8 +67,7 @@ export default function ModelPublicPage() {
   const cartItemsForCart = items.map(i => ({ material: i.material, description: i.description, quantity: i.quantity }));
   const noindex = total === 0 || !!seoOverride?.noindex;
 
-  const wppText = `Olá! Quero peças para ${modelName}.`;
-  const wppUrl = `https://wa.me/5595974009289?text=${encodeURIComponent(wppText)}`;
+  const wppUrl = PUBLIC_WHATSAPP_URL;
   const handleWppClick = () => {
     track.contact("whatsapp_model", { slug });
     trackServerConversion({ event: "whatsapp_click" });
