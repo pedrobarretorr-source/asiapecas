@@ -115,10 +115,10 @@ export default function QuoteRequestsTab() {
       </Card>
 
       <Dialog open={!!detail} onOpenChange={o => !o && setDetail(null)}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-lg flex flex-col max-h-[90vh]">
           <DialogHeader><DialogTitle>Detalhes da Cotação</DialogTitle></DialogHeader>
           {detail && (
-            <div className="space-y-4">
+            <div className="flex flex-col gap-4 overflow-y-auto pr-1 flex-1 min-h-0">
               <div className="grid grid-cols-2 gap-3">
                 <div className="bg-muted/50 rounded-lg p-3">
                   <p className="text-sm text-muted-foreground">Cliente</p>
@@ -149,7 +149,7 @@ export default function QuoteRequestsTab() {
                 </div>
               </div>
               {detail.status === "pendente" && (
-                <Button className="w-full gap-2" disabled={convertMut.isPending} onClick={() => { convertMut.mutate(detail); setDetail(null); }}>
+                <Button className="w-full gap-2 shrink-0" disabled={convertMut.isPending} onClick={() => { convertMut.mutate(detail); setDetail(null); }}>
                   <ArrowRightLeft className="h-4 w-4" /> Converter em Orçamento
                 </Button>
               )}
