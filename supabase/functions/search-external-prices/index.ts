@@ -1,4 +1,4 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "npm:@supabase/supabase-js@2";
 import type { NormalizedResult, ParserFn, SourceId } from "./parsers/types.ts";
 import { searchMercadoLivre } from "./parsers/mercadolivre.ts";
 
