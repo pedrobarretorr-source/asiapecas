@@ -86,6 +86,52 @@ export function useCreateSale() {
   });
 }
 
+export type SaleUpdateInput = {
+  id: string;
+  data: {
+    notes?: string | null;
+    payment_method?: string | null;
+    payment_terms?: string | null;
+    status?: string;
+  };
+  items: { part_id: string; quantity: number; unit_price: number; sell_price: number }[];
+};
+
+export function useUpdateSale() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, data, items }: SaleUpdateInput) => {
+      const total = items.reduce((s, i) => s + i.quantity * i.sell_price, 0);
+      const { error: saleErr } = await supabase
+        .from("sales")
+        .update({ ...data, total_amount: total })
+        .eq("id", id);
+      if (saleErr) throw saleErr;
+
+      const { error: delErr } = await supabase.from("sale_items").delete().eq("sale_id", id);
+      if (delErr) throw delErr;
+
+      if (items.length > 0) {
+        const rows = items.map((i) => ({
+          sale_id: id,
+          part_id: i.part_id,
+          quantity: i.quantity,
+          unit_price: i.unit_price,
+          sell_price: i.sell_price,
+          total_price: i.quantity * i.sell_price,
+        }));
+        const { error: insErr } = await supabase.from("sale_items").insert(rows);
+        if (insErr) throw insErr;
+      }
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["sales"] });
+      toast.success("Cotação atualizada");
+    },
+    onError: (e: Error) => toast.error("Erro ao atualizar: " + e.message),
+  });
+}
+
 export function useUpdateSaleStatus() {
   const qc = useQueryClient();
   return useMutation({

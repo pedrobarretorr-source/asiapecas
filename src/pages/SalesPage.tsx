@@ -4,17 +4,17 @@ import { AppLayout } from "@/components/AppLayout";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useSales, useUpdateSaleStatus, useDeleteSale, type Sale } from "@/hooks/use-sales";
-import { Plus, Eye, Trash2, ClipboardList, FileDown, Settings, FileCode2 } from "lucide-react";
+import { Plus, Pencil, Trash2, ClipboardList, Settings, FileCode2 } from "lucide-react";
 import QuoteRequestsTab from "@/components/quote/QuoteRequestsTab";
 import ProposalCustomizeDialog from "@/components/sales/ProposalCustomizeDialog";
 import ProposalConfigTab from "@/components/sales/ProposalConfigTab";
 import ProposalHtmlGeneratorTab from "@/components/sales/ProposalHtmlGeneratorTab";
+import SaleEditDialog from "@/components/sales/SaleEditDialog";
 import { routes } from "@/lib/routes";
 
 const STATUS_MAP: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
@@ -119,8 +119,8 @@ export default function SalesPage() {
                         </TableCell>
                         <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                           <div className="flex gap-1 justify-end">
-                            <Button variant="ghost" size="icon" onClick={() => setDetailSale(sale)}>
-                              <Eye className="h-4 w-4" />
+                            <Button variant="ghost" size="icon" onClick={() => setDetailSale(sale)} title={sale.status === "orcamento" ? "Editar cotação" : "Ver detalhes"}>
+                              <Pencil className="h-4 w-4" />
                             </Button>
                             <Select value={sale.status} onValueChange={v => updateStatus.mutate({ id: sale.id, status: v })}>
                               <SelectTrigger className="w-28 h-8"><SelectValue /></SelectTrigger>
@@ -155,81 +155,13 @@ export default function SalesPage() {
         </Tabs>
       </div>
 
-      {/* Sale Detail Dialog */}
-      <Dialog open={!!detailSale} onOpenChange={(o) => !o && setDetailSale(null)}>
-        <DialogContent className="max-w-2xl">
-          <DialogHeader>
-            <DialogTitle>
-              Detalhes da Venda {(detailSale as any)?.order_number ? `#${(detailSale as any).order_number}` : ""}
-            </DialogTitle>
-          </DialogHeader>
-          {detailSale && (
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-muted/50 rounded-lg p-3">
-                  <p className="text-sm text-muted-foreground">Cliente</p>
-                  <p className="font-medium">{detailSale.customers?.name || "—"}</p>
-                  {detailSale.customers?.company && <p className="text-sm">{detailSale.customers.company}</p>}
-                </div>
-                <div className="bg-muted/50 rounded-lg p-3">
-                  <p className="text-sm text-muted-foreground">Status</p>
-                  <Badge variant={STATUS_MAP[detailSale.status]?.variant || "outline"} className="mt-1">
-                    {STATUS_MAP[detailSale.status]?.label || detailSale.status}
-                  </Badge>
-                </div>
-                <div className="bg-muted/50 rounded-lg p-3">
-                  <p className="text-sm text-muted-foreground">Data</p>
-                  <p className="font-medium">{new Date(detailSale.sale_date).toLocaleDateString("pt-BR")}</p>
-                </div>
-                <div className="bg-muted/50 rounded-lg p-3">
-                  <p className="text-sm text-muted-foreground">Total</p>
-                  <p className="text-xl font-bold text-primary">R$ {detailSale.total_amount.toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</p>
-                </div>
-              </div>
-
-              {detailSale.payment_method && (
-                <p className="text-sm"><span className="text-muted-foreground">Pagamento:</span> {detailSale.payment_method} {detailSale.payment_terms ? `— ${detailSale.payment_terms}` : ""}</p>
-              )}
-              {detailSale.notes && <p className="text-sm"><span className="text-muted-foreground">Notas:</span> {detailSale.notes}</p>}
-
-              {detailSale.sale_items && detailSale.sale_items.length > 0 && (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Material</TableHead>
-                      <TableHead>Descrição</TableHead>
-                      <TableHead className="text-center">Qtd</TableHead>
-                      <TableHead>Preço Unit.</TableHead>
-                      <TableHead>Subtotal</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {detailSale.sale_items.map((item) => {
-                      const price = item.sell_price > 0 ? item.sell_price : item.unit_price;
-                      return (
-                      <TableRow key={item.id}>
-                        <TableCell className="font-mono text-xs">{item.parts?.material || "—"}</TableCell>
-                        <TableCell className="text-xs">{item.parts?.description || "—"}</TableCell>
-                        <TableCell className="text-center">{item.quantity}</TableCell>
-                        <TableCell className="font-mono">R$ {price.toLocaleString("pt-BR")}</TableCell>
-                        <TableCell className="font-mono font-medium">R$ {(price * item.quantity).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}</TableCell>
-                      </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
-              )}
-
-              <div className="flex justify-end pt-2">
-                <Button onClick={() => { setDetailSale(null); setProposalSale(detailSale); }} className="gap-2">
-                  <FileDown className="h-4 w-4" />
-                  Gerar Proposta Comercial (PDF)
-                </Button>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+      {/* Sale Edit / Detail Dialog */}
+      <SaleEditDialog
+        sale={detailSale}
+        open={!!detailSale}
+        onOpenChange={(o) => !o && setDetailSale(null)}
+        onGenerateProposal={(s) => { setDetailSale(null); setProposalSale(s); }}
+      />
 
       {/* Proposal Customize Dialog */}
       <ProposalCustomizeDialog

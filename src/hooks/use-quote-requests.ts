@@ -62,7 +62,7 @@ export function useConvertQuoteToSale() {
         }
       }
 
-      // 2. Resolve part_ids and prices from materials
+      // 2. Resolve part_ids and prices from materials (sem markup — preço = custo)
       const quoteItems = Array.isArray(quote.items) ? quote.items : [];
       const materials = quoteItems.map((i: any) => i.material).filter(Boolean);
       const { data: partsData } = await supabase
@@ -73,13 +73,15 @@ export function useConvertQuoteToSale() {
 
       const saleItems = quoteItems.map((i: any) => {
         const part = partsMap.get(i.material);
+        const cost = part?.estimated_price || 0;
         return {
           part_id: part?.id || null,
           quantity: i.quantity || 1,
-          unit_price: part?.estimated_price || 0,
+          unit_price: cost,
+          sell_price: cost,
         };
       });
-      const totalAmount = saleItems.reduce((s: number, i: any) => s + i.quantity * i.unit_price, 0);
+      const totalAmount = saleItems.reduce((s: number, i: any) => s + i.quantity * i.sell_price, 0);
 
       // 3. Create sale
       const { data: sale, error: saleErr } = await supabase
@@ -102,7 +104,8 @@ export function useConvertQuoteToSale() {
             part_id: i.part_id,
             quantity: i.quantity,
             unit_price: i.unit_price,
-            total_price: i.quantity * i.unit_price,
+            sell_price: i.sell_price,
+            total_price: i.quantity * i.sell_price,
           }))
         );
         if (itemsErr) throw itemsErr;

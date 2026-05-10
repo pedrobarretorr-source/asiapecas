@@ -9,6 +9,7 @@ import { StockBCGMatrix } from "@/components/stock/StockBCGMatrix";
 import { SubcategorizeAITab } from "@/components/stock/SubcategorizeAITab";
 import { TimeRiskAnalysis } from "@/components/stock/TimeRiskAnalysis";
 import { DataHealthTab } from "@/components/stock/DataHealthTab";
+import PriceCompareTab from "@/components/stock/PriceCompareTab";
 
 const StockPage = () => {
   const { data, isLoading, error } = useStockAnalytics();
@@ -46,6 +47,7 @@ const StockPage = () => {
               <TabsTrigger value="ai">Subcategorizar</TabsTrigger>
               <TabsTrigger value="risk">Tempo & Risco</TabsTrigger>
               <TabsTrigger value="health">Saúde dos Dados</TabsTrigger>
+              <TabsTrigger value="compare">Comparar Preços</TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview" className="mt-4">
@@ -76,6 +78,10 @@ const StockPage = () => {
 
             <TabsContent value="health" className="mt-4">
               <DataHealthTab data={data} />
+            </TabsContent>
+
+            <TabsContent value="compare" className="mt-4">
+              <PriceCompareTab />
             </TabsContent>
           </Tabs>
         )}

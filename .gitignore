@@ -30,3 +30,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Local artefatos
+.git_disabled/
+Gerador Propostas/
