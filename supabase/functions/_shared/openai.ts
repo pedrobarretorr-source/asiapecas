@@ -14,15 +14,15 @@ function normalizeModelName(model: string): string {
 }
 
 export function requireOpenAIKey(): string {
-  const apiKey = Deno.env.get("OPENAI_API_KEY");
-  if (!apiKey) throw new Error("OPENAI_API_KEY not configured");
+  const apiKey = Deno.env.get("MINIMAX_API_KEY");
+  if (!apiKey) throw new Error("MINIMAX_API_KEY not configured");
   return apiKey;
 }
 
 export function resolveOpenAIModel(envVarName: string, fallback: string): string {
   return normalizeModelName(
     Deno.env.get(envVarName) ||
-      Deno.env.get("OPENAI_MODEL") ||
+      Deno.env.get("MINIMAX_MODEL") ||
       fallback,
   );
 }
@@ -33,10 +33,10 @@ export async function createOpenAIChatCompletion(
   const apiKey = requireOpenAIKey();
   const body = {
     ...request,
-    model: normalizeModelName(request.model || resolveOpenAIModel("OPENAI_MODEL", "gpt-4.1-mini")),
+    model: normalizeModelName(request.model || resolveOpenAIModel("MINIMAX_MODEL", "MiniMax-M2.5")),
   };
 
-  return await fetch("https://api.openai.com/v1/chat/completions", {
+  return await fetch("https://api.minimax.io/v1/chat/completions", {
     method: "POST",
     headers: {
       Authorization: `Bearer ${apiKey}`,
