@@ -78,7 +78,7 @@ export function organizationLd() {
   };
 }
 
-export function productLd(part: { material: string; description: string; manufacturer?: string | null; stock: number; estimated_price?: number; image_url?: string | null }) {
+export function productLd(part: { material: string; description: string; manufacturer?: string | null; stock: number; image_url?: string | null }) {
   return {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -89,14 +89,13 @@ export function productLd(part: { material: string; description: string; manufac
     offers: {
       "@type": "Offer",
       priceCurrency: "BRL",
-      price: part.estimated_price && part.estimated_price > 0 ? part.estimated_price : undefined,
       availability: part.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
       url: `${SITE_URL}/cotacao/p/${encodeURIComponent(part.material)}`,
     },
   };
 }
 
-export function itemListLd(parts: { material: string; description: string; manufacturer?: string | null; stock: number; estimated_price?: number; image_url?: string | null }[]) {
+export function itemListLd(parts: { material: string; description: string; manufacturer?: string | null; stock: number; image_url?: string | null }[]) {
   return {
     "@context": "https://schema.org",
     "@type": "ItemList",
