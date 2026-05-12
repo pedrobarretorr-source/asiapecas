@@ -87,7 +87,7 @@ export default function ModelPublicPage() {
   const lds: any[] = [organizationLd(), breadcrumbLd([
     { name: "Início", url: "/" },
     { name: "Cotação", url: "/cotacao" },
-    { name: "Modelos", url: "/cotacao/modelos" },
+    { name: "Segmentos", url: "/cotacao/segmentos" },
     { name: modelName, url: `/cotacao/m/${slug}` },
   ])];
   if (top4.length) lds.push(itemListLd(top4 as any));
@@ -126,7 +126,7 @@ export default function ModelPublicPage() {
               <li>/</li>
               <li><Link to="/cotacao" className="hover:text-primary">Cotação</Link></li>
               <li>/</li>
-              <li><Link to="/cotacao/modelos" className="hover:text-primary">Modelos</Link></li>
+              <li><Link to="/cotacao/segmentos" className="hover:text-primary">Segmentos</Link></li>
               <li>/</li>
               <li className="text-foreground">{modelName}</li>
             </ol>

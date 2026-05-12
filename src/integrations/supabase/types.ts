@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.4"
+    PostgrestVersion: "14.5"
   }
   public: {
     Tables: {
@@ -497,6 +497,172 @@ export type Database = {
         }
         Relationships: []
       }
+      machine_models: {
+        Row: {
+          code: string
+          created_at: string
+          display_name: string
+          id: string
+          image_url: string | null
+          match_patterns: string[]
+          segment_id: string
+          slug: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          display_name: string
+          id?: string
+          image_url?: string | null
+          match_patterns?: string[]
+          segment_id: string
+          slug: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          display_name?: string
+          id?: string
+          image_url?: string | null
+          match_patterns?: string[]
+          segment_id?: string
+          slug?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "machine_models_segment_id_fkey"
+            columns: ["segment_id"]
+            isOneToOne: false
+            referencedRelation: "machine_segments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      machine_segments: {
+        Row: {
+          created_at: string
+          description: string | null
+          hero_image_url: string | null
+          id: string
+          name: string
+          slug: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          hero_image_url?: string | null
+          id?: string
+          name: string
+          slug: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          hero_image_url?: string | null
+          id?: string
+          name?: string
+          slug?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      maintenance_machines: {
+        Row: {
+          category: string
+          created_at: string
+          id: string
+          image_url: string | null
+          model: string
+          notes: string | null
+          serial: string | null
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          model: string
+          notes?: string | null
+          serial?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          model?: string
+          notes?: string | null
+          serial?: string | null
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      maintenance_plan_items: {
+        Row: {
+          created_at: string
+          description: string
+          group_name: string
+          id: string
+          interval_hours: number
+          machine_id: string
+          material: string
+          quantity: number
+          sort_order: number
+          substitute_codes: string[]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          group_name?: string
+          id?: string
+          interval_hours: number
+          machine_id: string
+          material: string
+          quantity?: number
+          sort_order?: number
+          substitute_codes?: string[]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          group_name?: string
+          id?: string
+          interval_hours?: number
+          machine_id?: string
+          material?: string
+          quantity?: number
+          sort_order?: number
+          substitute_codes?: string[]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "maintenance_plan_items_machine_id_fkey"
+            columns: ["machine_id"]
+            isOneToOne: false
+            referencedRelation: "maintenance_machines"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       market_research: {
         Row: {
           availability: string | null
@@ -687,6 +853,88 @@ export type Database = {
         }
         Relationships: []
       }
+      price_lookup_results: {
+        Row: {
+          error: string | null
+          id: string
+          image_url: string | null
+          in_stock: boolean | null
+          lookup_id: string
+          price_brl: number | null
+          rank: number
+          seller: string | null
+          source: string
+          title: string | null
+          url: string | null
+        }
+        Insert: {
+          error?: string | null
+          id?: string
+          image_url?: string | null
+          in_stock?: boolean | null
+          lookup_id: string
+          price_brl?: number | null
+          rank?: number
+          seller?: string | null
+          source: string
+          title?: string | null
+          url?: string | null
+        }
+        Update: {
+          error?: string | null
+          id?: string
+          image_url?: string | null
+          in_stock?: boolean | null
+          lookup_id?: string
+          price_brl?: number | null
+          rank?: number
+          seller?: string | null
+          source?: string
+          title?: string | null
+          url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "price_lookup_results_lookup_id_fkey"
+            columns: ["lookup_id"]
+            isOneToOne: false
+            referencedRelation: "price_lookups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      price_lookups: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          part_id: string
+          query: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          part_id: string
+          query: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          part_id?: string
+          query?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "price_lookups_part_id_fkey"
+            columns: ["part_id"]
+            isOneToOne: false
+            referencedRelation: "parts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pricing_settings: {
         Row: {
           default_markup: number
@@ -750,45 +998,6 @@ export type Database = {
           phone?: string
           updated_at?: string
           updated_by?: string | null
-        }
-        Relationships: []
-      }
-      prospection_campaigns: {
-        Row: {
-          converted: number | null
-          created_at: string
-          id: string
-          name: string
-          notes: string | null
-          status: string
-          target_country: string
-          target_segments: string[] | null
-          target_states: string[] | null
-          total_prospects: number | null
-        }
-        Insert: {
-          converted?: number | null
-          created_at?: string
-          id?: string
-          name: string
-          notes?: string | null
-          status?: string
-          target_country?: string
-          target_segments?: string[] | null
-          target_states?: string[] | null
-          total_prospects?: number | null
-        }
-        Update: {
-          converted?: number | null
-          created_at?: string
-          id?: string
-          name?: string
-          notes?: string | null
-          status?: string
-          target_country?: string
-          target_segments?: string[] | null
-          target_states?: string[] | null
-          total_prospects?: number | null
         }
         Relationships: []
       }
@@ -1265,75 +1474,6 @@ export type Database = {
         }
         Relationships: []
       }
-      vitrine_collection_parts: {
-        Row: {
-          collection_id: string
-          part_id: string
-          sort_order: number
-        }
-        Insert: {
-          collection_id: string
-          part_id: string
-          sort_order?: number
-        }
-        Update: {
-          collection_id?: string
-          part_id?: string
-          sort_order?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "vitrine_collection_parts_collection_id_fkey"
-            columns: ["collection_id"]
-            isOneToOne: false
-            referencedRelation: "vitrine_collections"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "vitrine_collection_parts_part_id_fkey"
-            columns: ["part_id"]
-            isOneToOne: false
-            referencedRelation: "parts"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      vitrine_collections: {
-        Row: {
-          active: boolean
-          created_at: string
-          description: string | null
-          icon: string | null
-          id: string
-          name: string
-          slug: string
-          sort_order: number
-          updated_at: string
-        }
-        Insert: {
-          active?: boolean
-          created_at?: string
-          description?: string | null
-          icon?: string | null
-          id?: string
-          name: string
-          slug: string
-          sort_order?: number
-          updated_at?: string
-        }
-        Update: {
-          active?: boolean
-          created_at?: string
-          description?: string | null
-          icon?: string | null
-          id?: string
-          name?: string
-          slug?: string
-          sort_order?: number
-          updated_at?: string
-        }
-        Relationships: []
-      }
       vitrine_featured_parts: {
         Row: {
           active: boolean
@@ -1497,6 +1637,55 @@ export type Database = {
         Returns: boolean
       }
       immutable_unaccent: { Args: { "": string }; Returns: string }
+      models_in_segment: {
+        Args: { segment_slug_param: string }
+        Returns: {
+          code: string
+          display_name: string
+          image_url: string
+          parts_count: number
+          slug: string
+          sort_order: number
+        }[]
+      }
+      parts_for_model_slug: {
+        Args: { model_slug_param: string }
+        Returns: {
+          attributes: Json | null
+          classification_method: string | null
+          compatible_models: string[] | null
+          created_at: string
+          description: string
+          estimated_price: number
+          id: string
+          image_url: string | null
+          is_caminhao_eletrico: boolean
+          is_guindaste: boolean
+          is_linha_amarela: boolean
+          is_mineracao: boolean
+          is_perfuratriz: boolean
+          last_entry_time: string | null
+          machine_model: string | null
+          manufacturer: string | null
+          material: string
+          needs_review: boolean
+          part_category: string | null
+          reviewed_at: string | null
+          search_vector: unknown
+          stock: number
+          subcategory: string | null
+          subcategory_confidence: number | null
+          subcategory_source: string | null
+          supplier: string | null
+          updated_at: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "parts"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       search_parts: {
         Args: { _limit?: number; _offset?: number; filters?: Json; q?: string }
         Returns: {
@@ -1514,6 +1703,17 @@ export type Database = {
           stock: number
           subcategory: string
           total_count: number
+        }[]
+      }
+      segment_stats: {
+        Args: never
+        Returns: {
+          hero_image_url: string
+          model_count: number
+          name: string
+          parts_count: number
+          slug: string
+          sort_order: number
         }[]
       }
       show_limit: { Args: never; Returns: number }

@@ -27,6 +27,8 @@ import CategoryPublicPage from "./pages/CategoryPublicPage";
 import ModelPublicPage from "./pages/ModelPublicPage";
 import CategoriesIndexPage from "./pages/CategoriesIndexPage";
 import ModelsIndexPage from "./pages/ModelsIndexPage";
+import SegmentsIndexPage from "./pages/SegmentsIndexPage";
+import SegmentPublicPage from "./pages/SegmentPublicPage";
 import AdminVitrinePage from "./pages/AdminVitrinePage";
 import TrainingPage from "./pages/TrainingPage";
 import LoginPage from "./pages/LoginPage";
@@ -63,6 +65,8 @@ const App = () => {
                 <Route path="/cotacao" element={<QuotePage />} />
                 <Route path="/cotacao/categorias" element={<CategoriesIndexPage />} />
                 <Route path="/cotacao/modelos" element={<ModelsIndexPage />} />
+                <Route path="/cotacao/segmentos" element={<SegmentsIndexPage />} />
+                <Route path="/cotacao/segmentos/:slug" element={<SegmentPublicPage />} />
                 <Route path="/cotacao/c/:slug" element={<CategoryPublicPage />} />
                 <Route path="/cotacao/m/:slug" element={<ModelPublicPage />} />
                 <Route path="/cotacao/p/:material" element={<PartDetailPublicPage />} />
