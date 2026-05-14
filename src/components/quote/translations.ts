@@ -95,7 +95,8 @@ const t = {
   "part.readyToShip": { pt: "Pronta Entrega", en: "Ready to Ship", es: "Entrega Inmediata" },
   "part.lastUnits": { pt: "Últimas unidades!", en: "Last units!", es: "¡Últimas unidades!" },
   "part.aiVerified": { pt: "Verificado por IA", en: "AI Verified", es: "Verificado por IA" },
-  "part.priceOnRequest": { pt: "Cotação sob consulta", en: "Price on request", es: "Precio bajo consulta" },
+  "part.priceOnRequest": { pt: "Consultar preço", en: "Price on request", es: "Precio bajo consulta" },
+  "part.kitsManutencao": { pt: "Kits de Manutenção", en: "Maintenance Kits", es: "Kits de Mantenimiento" },
   "part.onPromotion": { pt: "Em promoção", en: "On promotion", es: "En promoción" },
   "part.availability": { pt: "Disponibilidade", en: "Availability", es: "Disponibilidad" },
 

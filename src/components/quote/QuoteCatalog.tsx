@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -7,13 +7,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { ChevronLeft, ChevronRight, SlidersHorizontal, X, LayoutGrid, List, ShoppingCart, Eye } from "lucide-react";
+import { ChevronLeft, ChevronRight, Menu, X, LayoutGrid, List, ShoppingCart, Eye } from "lucide-react";
 import QuotePartCard from "./QuotePartCard";
 import QuotePartDetail from "./QuotePartDetail";
 import CategoryGroupedView from "./CategoryGroupedView";
-import { useAuth } from "@/contexts/AuthContext";
 import { type Lang, tr } from "./translations";
-import { PART_CATEGORIES, getPartCategoryOption } from "./part-categories";
+import { MACHINE_CATEGORIES } from "./machine-categories";
 
 type CartItem = { material: string; description: string; quantity: number };
 
@@ -86,57 +85,40 @@ function compactFilters(filters: Record<string, string | boolean | null | undefi
 }
 
 export default function QuoteCatalog({ search, category, partCategory, onPartCategoryChange, subcategory, onSubcategoryChange, cartItems, onAddToCart, lang }: QuoteCatalogProps) {
-  const { user } = useAuth();
-  const showPrice = !!user;
+  const showPrice = false;
   const [page, setPage] = useState(0);
   const [detailPart, setDetailPart] = useState<any | null>(null);
   const [translations, setTranslations] = useState<Record<string, string>>({});
-  const [manufacturer, setManufacturer] = useState<string>("all");
   const [model, setModel] = useState<string>("all");
-  const [availability, setAvailability] = useState<string>("all");
   const [sort, setSort] = useState<SortOption>("relevance");
   const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const [attrFilter, setAttrFilter] = useState<{ key: string; value: string } | null>(null);
+  const [equipmentType, setEquipmentType] = useState<string | null>(null);
+  const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
+
+  const toggleCategoryExpanded = (key: string) => {
+    setExpandedCategory((prev) => (prev === key ? null : key));
+  };
 
   // Show grouped view when nothing is filtered (e-commerce default)
   const isUnfilteredDefault =
-    !search && !category && !partCategory && !subcategory && !attrFilter &&
-    manufacturer === "all" && model === "all" && availability === "all";
-
-  // Fetch filter options using RPC for full distinct values (no 1000-row limit)
-  const { data: filterOptions } = useQuery({
-    queryKey: ["quote-filter-options"],
-    queryFn: async () => {
-      const [mfr, mdl, categories] = await Promise.all([
-        supabase.rpc("get_distinct_values", { col_name: "manufacturer", stock_min: 1 }),
-        supabase.rpc("get_distinct_values", { col_name: "machine_model", stock_min: 1 }),
-        supabase.rpc("get_distinct_values", { col_name: "part_category", stock_min: 1 }),
-      ]);
-      return {
-        manufacturers: (mfr.data ?? []) as string[],
-        models: (mdl.data ?? []) as string[],
-        partCategories: (categories.data ?? []) as string[],
-      };
-    },
-    staleTime: 5 * 60 * 1000,
-  });
-
-  const categoryOptions = useMemo(() => {
-    const distinctCategories = filterOptions?.partCategories?.length ? filterOptions.partCategories : PART_CATEGORIES.map((category) => category.key);
-    return distinctCategories.map((key) => getPartCategoryOption(key));
-  }, [filterOptions?.partCategories]);
+    !search && !category && !partCategory && !subcategory && !attrFilter && !equipmentType &&
+    model === "all";
 
   // Reset page when filters change
-  useEffect(() => { setPage(0); }, [search, category, partCategory, subcategory, manufacturer, model, availability, sort, attrFilter]);
+  useEffect(() => { setPage(0); }, [search, category, partCategory, subcategory, model, sort, attrFilter, equipmentType]);
 
-  const activeFilterCount = [manufacturer !== "all", model !== "all", availability !== "all", !!partCategory, !!subcategory, !!attrFilter].filter(Boolean).length;
+  const activeFilterCount = [model !== "all", !!partCategory, !!subcategory, !!attrFilter, !!equipmentType].filter(Boolean).length;
+
+  const equipmentModels =
+    equipmentType ? MACHINE_CATEGORIES.find((c) => c.key === equipmentType)?.models ?? [] : [];
 
   const { data, isLoading } = useQuery({
-    queryKey: ["quote-parts", search, category, partCategory, subcategory, page, manufacturer, model, availability, sort, attrFilter],
+    queryKey: ["quote-parts", search, category, partCategory, subcategory, page, model, sort, attrFilter, equipmentType],
     enabled: !isUnfilteredDefault,
     queryFn: async () => {
       const searchTerm = search.trim();
-      const shouldUseRankedSearch = searchTerm.length >= SEARCH_MIN_LENGTH;
+      const shouldUseRankedSearch = searchTerm.length >= SEARCH_MIN_LENGTH && equipmentModels.length === 0;
 
       if (shouldUseRankedSearch) {
         const filters = compactFilters({
@@ -144,9 +126,7 @@ export default function QuoteCatalog({ search, category, partCategory, onPartCat
           segment: category || null,
           part_category: partCategory || null,
           subcategory: subcategory || null,
-          manufacturer,
           machine_model: model,
-          availability,
           sort,
           attribute_key: attrFilter?.key,
           attribute_value: attrFilter?.value,
@@ -194,10 +174,8 @@ export default function QuoteCatalog({ search, category, partCategory, onPartCat
       if (category && CATEGORY_MAP[category]) {
         query = query.eq(CATEGORY_MAP[category], true);
       }
-      if (manufacturer !== "all") query = query.eq("manufacturer", manufacturer);
       if (model !== "all") query = query.eq("machine_model", model);
-      if (availability === "ready") query = query.gt("stock", 10);
-      if (availability === "low") query = query.lte("stock", 10);
+      else if (equipmentModels.length > 0) query = query.in("machine_model", equipmentModels);
       if (partCategory) query = query.eq("part_category", partCategory);
       if (subcategory) query = query.eq("subcategory", subcategory);
       if (attrFilter) query = query.eq(`attributes->>${attrFilter.key}`, attrFilter.value);
@@ -274,97 +252,111 @@ export default function QuoteCatalog({ search, category, partCategory, onPartCat
   const inCartMaterials = new Set(cartItems.map(i => i.material));
 
   const clearFilters = () => {
-    setManufacturer("all");
     setModel("all");
-    setAvailability("all");
     setSort("relevance");
     setAttrFilter(null);
+    setEquipmentType(null);
+    setExpandedCategory(null);
     if (onSubcategoryChange) onSubcategoryChange(null);
     if (onPartCategoryChange && partCategory) onPartCategoryChange(partCategory);
   };
 
-  const FilterPanel = () => (
-    <div className="space-y-5">
+  const selectAll = () => {
+    setEquipmentType(null);
+    setModel("all");
+  };
+
+  const selectEquipmentType = (key: string) => {
+    setEquipmentType(key);
+    setModel("all");
+  };
+
+  const selectModel = (m: string) => {
+    setEquipmentType(null);
+    setModel(m);
+  };
+
+  const FilterPanel = ({ inSheet = false }: { inSheet?: boolean } = {}) => (
+    <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h3 className="font-semibold text-sm text-foreground">{tr("filter.title", lang)}</h3>
+        <h3 className="font-semibold text-sm text-foreground">
+          {lang === "en" ? "Machines" : "Máquinas"}
+        </h3>
         {activeFilterCount > 0 && (
-          <Button variant="ghost" size="sm" className="text-xs h-7 gap-1 text-destructive" onClick={clearFilters}>
-            <X className="h-3 w-3" /> {tr("filter.clear", lang)}
+          <Button variant="ghost" size="sm" className="text-xs h-8 gap-1 text-destructive px-2" onClick={clearFilters}>
+            <X className="h-3.5 w-3.5" /> {tr("filter.clear", lang)}
           </Button>
         )}
       </div>
 
-      {/* Availability */}
-      <div className="space-y-2">
-        <label className="text-xs font-medium text-muted-foreground">{tr("filter.availability", lang)}</label>
-        <div className="flex flex-col gap-1">
-          {[
-            { value: "all", label: tr("filter.all", lang) },
-            { value: "ready", label: tr("filter.readyToShip", lang) },
-            { value: "low", label: tr("filter.onDemand", lang) },
-          ].map(opt => (
-            <button
-              key={opt.value}
-              onClick={() => setAvailability(opt.value)}
-              className={`text-left text-xs px-3 py-2 rounded-md transition-colors ${availability === opt.value ? "bg-primary text-primary-foreground" : "hover:bg-muted text-foreground"}`}
-            >
-              {opt.label}
-            </button>
-          ))}
-        </div>
-      </div>
+      <div className="flex flex-col gap-1">
+        <button
+          onClick={selectAll}
+          className={`text-left text-sm px-3 py-2.5 rounded-md transition-colors font-semibold min-h-[44px] ${
+            !equipmentType && model === "all"
+              ? "bg-primary text-primary-foreground"
+              : "hover:bg-muted text-foreground"
+          }`}
+        >
+          {lang === "en" ? "All machines" : lang === "es" ? "Todas las máquinas" : "Todas as máquinas"}
+        </button>
 
-      {/* Part Category */}
-      {onPartCategoryChange && (
-        <div className="space-y-2">
-          <label className="text-xs font-medium text-muted-foreground">{tr("filter.partCategory", lang)}</label>
-          <div className="flex flex-col gap-1">
-            <button
-              onClick={() => { if (partCategory && onPartCategoryChange) onPartCategoryChange(partCategory); }}
-              className={`text-left text-xs px-3 py-2 rounded-md transition-colors ${!partCategory ? "bg-primary text-primary-foreground" : "hover:bg-muted text-foreground"}`}
-            >
-              {tr("filter.allCategories", lang)}
-            </button>
-            {categoryOptions.map(cat => (
+        {MACHINE_CATEGORIES.map((cat) => {
+          const isCatActive = equipmentType === cat.key;
+          const hasActiveModel = cat.models.includes(model);
+          const isExpanded = expandedCategory === cat.key;
+          const rowSize = inSheet ? "text-sm" : "text-xs sm:text-[13px]";
+          return (
+            <div key={cat.key} className="space-y-0.5">
               <button
-                key={cat.key}
-                onClick={() => onPartCategoryChange(cat.key)}
-                className={`flex items-center gap-2 text-left text-xs px-3 py-2 rounded-md transition-colors ${partCategory === cat.key ? "bg-primary text-primary-foreground" : "hover:bg-muted text-foreground"}`}
+                onClick={() => toggleCategoryExpanded(cat.key)}
+                aria-expanded={isExpanded}
+                className={`flex items-center gap-2.5 w-full text-left ${rowSize} px-3 py-2.5 rounded-md transition-colors min-h-[44px] ${
+                  isCatActive || hasActiveModel
+                    ? "bg-primary/10 text-foreground font-medium"
+                    : "hover:bg-muted text-foreground"
+                }`}
               >
-                <cat.icon className="h-3.5 w-3.5" />
-                {PART_CATEGORIES.some((option) => option.key === cat.key) ? tr(`pcat.${cat.key}` as any, lang) : cat.key}
+                <cat.icon className="h-4 w-4 flex-shrink-0 text-muted-foreground" />
+                <span className="flex-1 truncate">{cat.label}</span>
+                <ChevronRight
+                  className={`h-4 w-4 text-muted-foreground transition-transform duration-200 ${
+                    isExpanded ? "rotate-90" : ""
+                  }`}
+                />
               </button>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Manufacturer */}
-      <div className="space-y-2">
-        <label className="text-xs font-medium text-muted-foreground">{tr("filter.manufacturer", lang)}</label>
-        <Select value={manufacturer} onValueChange={setManufacturer}>
-          <SelectTrigger className="h-9 text-xs"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">{tr("filter.allManufacturers", lang)}</SelectItem>
-            {(filterOptions?.manufacturers || []).map((m: string) => (
-              <SelectItem key={m} value={m}>{m}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Model */}
-      <div className="space-y-2">
-        <label className="text-xs font-medium text-muted-foreground">{tr("filter.model", lang)}</label>
-        <Select value={model} onValueChange={setModel}>
-          <SelectTrigger className="h-9 text-xs"><SelectValue /></SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">{tr("filter.allModels", lang)}</SelectItem>
-            {(filterOptions?.models || []).map((m: string) => (
-              <SelectItem key={m} value={m}>{m}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+              {isExpanded && (
+                <div className="flex flex-col gap-1 pl-9 pr-1 pb-2 pt-1">
+                  <button
+                    onClick={() => selectEquipmentType(cat.key)}
+                    className={`text-left text-xs px-2.5 py-2 rounded transition-colors min-h-[36px] ${
+                      isCatActive
+                        ? "bg-primary text-primary-foreground"
+                        : "text-primary hover:bg-primary/10"
+                    }`}
+                  >
+                    {lang === "en" ? `View all ${cat.label.toLowerCase()}` : `Ver toda categoria`}
+                  </button>
+                  <div className="flex flex-wrap gap-1.5 pt-1">
+                    {cat.models.map((m) => (
+                      <button
+                        key={m}
+                        onClick={() => selectModel(m)}
+                        className={`text-[11px] font-mono px-2.5 py-1.5 rounded border transition-colors min-h-[32px] ${
+                          model === m
+                            ? "bg-primary text-primary-foreground border-primary"
+                            : "border-border text-muted-foreground hover:border-primary hover:text-primary"
+                        }`}
+                      >
+                        {m}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );
@@ -435,12 +427,12 @@ export default function QuoteCatalog({ search, category, partCategory, onPartCat
                 </SelectContent>
               </Select>
 
-              {/* Mobile filter button */}
+              {/* Mobile machines drawer */}
               <Sheet>
                 <SheetTrigger asChild>
                   <Button variant="outline" size="sm" className="lg:hidden h-9 gap-1.5">
-                    <SlidersHorizontal className="h-4 w-4" />
-                    {tr("filter.title", lang)}
+                    <Menu className="h-4 w-4" />
+                    {lang === "en" ? "Machines" : "Máquinas"}
                     {activeFilterCount > 0 && (
                       <span className="bg-primary text-primary-foreground rounded-full h-5 w-5 flex items-center justify-center text-[10px]">
                         {activeFilterCount}
@@ -448,12 +440,12 @@ export default function QuoteCatalog({ search, category, partCategory, onPartCat
                     )}
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="left" className="w-72">
+                <SheetContent side="left" className="w-[88vw] max-w-sm overflow-y-auto">
                   <SheetHeader>
-                    <SheetTitle>{tr("filter.title", lang)}</SheetTitle>
+                    <SheetTitle>{lang === "en" ? "Browse by machine" : lang === "es" ? "Buscar por máquina" : "Navegar por máquina"}</SheetTitle>
                   </SheetHeader>
-                  <div className="mt-6">
-                    <FilterPanel />
+                  <div className="mt-6 pb-6">
+                    <FilterPanel inSheet />
                   </div>
                 </SheetContent>
               </Sheet>
@@ -533,20 +525,22 @@ export default function QuoteCatalog({ search, category, partCategory, onPartCat
                         </TableCell>
                         <TableCell className="hidden md:table-cell text-xs text-muted-foreground">{part.machine_model || "—"}</TableCell>
                         <TableCell className="text-right hidden sm:table-cell">
-                          {showPrice && price > 0 ? (
-                            <span className="text-sm font-semibold text-foreground">{fmtPrice(price)}</span>
-                          ) : showPrice ? (
+                          {part.stock > 10 ? (
                             <span className="text-xs text-muted-foreground italic">
-                              {lang === "en" ? "On request" : lang === "es" ? "Bajo consulta" : "Sob consulta"}
+                              {lang === "en" ? "Ready to ship" : lang === "es" ? "Entrega inmediata" : "Pronta entrega"}
+                            </span>
+                          ) : part.stock > 0 ? (
+                            <span className="text-xs text-muted-foreground italic">
+                              {lang === "en" ? "Last" : lang === "es" ? "Últimas" : "Últimas"} {part.stock}
                             </span>
                           ) : (
-                            <span className="text-xs text-muted-foreground italic">
-                              {part.stock > 10
-                                ? (lang === "en" ? "Ready to ship" : lang === "es" ? "Entrega inmediata" : "Pronta entrega")
-                                : part.stock > 0
-                                ? `${lang === "en" ? "Last" : lang === "es" ? "Últimas" : "Últimas"} ${part.stock}`
-                                : tr("part.priceOnRequest", lang)}
-                            </span>
+                            <a
+                              href="/cotacao/kits-de-manutencao"
+                              onClick={(e) => e.stopPropagation()}
+                              className="text-xs font-medium text-primary hover:underline"
+                            >
+                              {tr("part.kitsManutencao", lang)}
+                            </a>
                           )}
                         </TableCell>
                         <TableCell className="text-right">

@@ -35,7 +35,6 @@ export default function CategoryGroupedView({
   const { data, isLoading } = useQuery({
     queryKey: ["category-grouped-view"],
     queryFn: async () => {
-      // Pull aggregate of all parts with subcategory & stock
       const { data: agg } = await supabase
         .from("parts")
         .select("id, material, description, machine_model, stock, manufacturer, estimated_price, image_url, subcategory, attributes")
@@ -87,13 +86,12 @@ export default function CategoryGroupedView({
   }
 
   const seeAll = lang === "en" ? "See all" : lang === "es" ? "Ver todos" : "Ver todos";
-  const skusLbl = lang === "en" ? "SKUs" : lang === "es" ? "SKUs" : "SKUs";
-  const unitsLbl = lang === "en" ? "units" : lang === "es" ? "unidades" : "unidades";
+  const skusLbl = "SKUs";
+  const unitsLbl = lang === "en" ? "units" : "unidades";
 
   return (
     <div className="space-y-12">
       {data?.map((g) => {
-        // Top 4 most frequent attribute values across all attribute keys
         const attrChips: Array<{ key: string; value: string; count: number }> = [];
         for (const [k, vals] of Object.entries(g.attributes)) {
           for (const [v, c] of Object.entries(vals)) attrChips.push({ key: k, value: v, count: c });
@@ -103,7 +101,6 @@ export default function CategoryGroupedView({
 
         return (
           <section key={g.subcategory} className="space-y-3">
-            {/* Header row */}
             <div className="flex items-center justify-between gap-3 flex-wrap">
               <button
                 onClick={() => onSelectSubcategory(g.subcategory)}
@@ -124,7 +121,6 @@ export default function CategoryGroupedView({
               </Button>
             </div>
 
-            {/* Attribute chips */}
             {topChips.length > 0 && (
               <div className="flex flex-wrap gap-1.5">
                 {topChips.map((chip) => (
@@ -140,7 +136,6 @@ export default function CategoryGroupedView({
               </div>
             )}
 
-            {/* Preview cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
               {g.preview.map((part) => (
                 <QuotePartCard

@@ -22,6 +22,7 @@ import ProspectionPage from "./pages/ProspectionPage";
 import ReportPage from "./pages/ReportPage";
 import HomePage from "./pages/HomePage";
 import QuotePage from "./pages/QuotePage";
+import KitsManutencaoPage from "./pages/KitsManutencaoPage";
 import PartDetailPublicPage from "./pages/PartDetailPublicPage";
 import CategoryPublicPage from "./pages/CategoryPublicPage";
 import ModelPublicPage from "./pages/ModelPublicPage";
@@ -63,6 +64,7 @@ const App = () => {
                 {/* Public routes */}
                 <Route path="/" element={<HomePage />} />
                 <Route path="/cotacao" element={<QuotePage />} />
+                <Route path="/cotacao/kits-de-manutencao" element={<KitsManutencaoPage />} />
                 <Route path="/cotacao/categorias" element={<CategoriesIndexPage />} />
                 <Route path="/cotacao/modelos" element={<ModelsIndexPage />} />
                 <Route path="/cotacao/segmentos" element={<SegmentsIndexPage />} />

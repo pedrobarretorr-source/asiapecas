@@ -99,7 +99,11 @@ export default function CategoriesIndexPage() {
                         <p className="font-semibold text-foreground">{c.key}</p>
                         <div className="flex gap-2 mt-1">
                           <Badge variant="secondary" className="text-[10px]">{c.skus} itens</Badge>
-                          {c.skus === 0 && <Badge variant="outline" className="text-[10px]">Sob consulta</Badge>}
+                          {c.skus === 0 && (
+                            <Badge variant="outline" className="text-[10px] border-primary/40 text-primary">
+                              Kits de Manutenção
+                            </Badge>
+                          )}
                         </div>
                       </div>
                       <ChevronRight className="h-5 w-5 text-muted-foreground" />

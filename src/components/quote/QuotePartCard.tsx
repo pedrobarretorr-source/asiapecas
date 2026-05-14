@@ -1,11 +1,8 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ShoppingCart, Eye, Zap, AlertTriangle, Tag } from "lucide-react";
+import { ShoppingCart, Eye, Zap, AlertTriangle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
 import { type Lang, tr } from "./translations";
 
 interface QuotePartCardProps {
@@ -30,48 +27,10 @@ interface QuotePartCardProps {
   lang: Lang;
 }
 
-function fmtPrice(value: number, lang: Lang): string {
-  const locale = lang === "en" ? "en-US" : lang === "es" ? "es-AR" : "pt-BR";
-  const currency = lang === "en" ? "USD" : "BRL";
-  try {
-    return new Intl.NumberFormat(locale, { style: "currency", currency, maximumFractionDigits: 2 }).format(value);
-  } catch {
-    return `R$ ${value.toFixed(2)}`;
-  }
-}
-
 export default function QuotePartCard({ part, inCart, onAdd, onViewDetail, lang }: QuotePartCardProps) {
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const showPrice = !!user;
   const isReadyToShip = part.stock > 10;
   const isLastUnits = part.stock >= 1 && part.stock <= 5;
-  const price = Number(part.estimated_price || 0);
-
-  // Active promo (per-part)
-  const { data: promo } = useQuery({
-    queryKey: ["promo", part.id],
-    queryFn: async () => {
-      const nowIso = new Date().toISOString();
-      const { data } = await supabase
-        .from("part_promotions")
-        .select("promo_price, starts_at, ends_at")
-        .eq("part_id", part.id)
-        .eq("active", true)
-        .order("created_at", { ascending: false })
-        .limit(1);
-      const p = data?.[0];
-      if (!p) return null;
-      if (p.starts_at && p.starts_at > nowIso) return null;
-      if (p.ends_at && p.ends_at < nowIso) return null;
-      return p;
-    },
-    staleTime: 5 * 60 * 1000,
-  });
-
-  const promoPrice = promo?.promo_price ? Number(promo.promo_price) : null;
-  const finalPrice = promoPrice ?? price;
-  const discountPct = promoPrice && price > 0 ? Math.round((1 - promoPrice / price) * 100) : null;
 
   const goToDetail = () => navigate(`/cotacao/p/${encodeURIComponent(part.material)}`);
 
@@ -84,8 +43,6 @@ export default function QuotePartCard({ part, inCart, onAdd, onViewDetail, lang 
     onViewDetail();
   };
 
-  const priceLabel = lang === "en" ? "From" : lang === "es" ? "Desde" : "A partir de";
-
   return (
     <Card
       onClick={goToDetail}
@@ -95,7 +52,7 @@ export default function QuotePartCard({ part, inCart, onAdd, onViewDetail, lang 
     >
       <CardContent className="p-0 flex flex-col h-full">
         {/* Image */}
-        <div className="relative aspect-square bg-muted/40 overflow-hidden">
+        <div className="relative aspect-[3/2] bg-muted/40 overflow-hidden">
           {part.image_url ? (
             <img
               src={part.image_url}
@@ -108,18 +65,6 @@ export default function QuotePartCard({ part, inCart, onAdd, onViewDetail, lang 
             <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-secondary/5 to-primary/5">
               <span className="text-5xl font-bold font-['Space_Grotesk'] text-primary/30 select-none">XCMG</span>
               <span className="text-[10px] uppercase tracking-widest text-muted-foreground/50 mt-1">peça original</span>
-            </div>
-          )}
-
-          {/* Promo badge — show % only to authenticated internal users */}
-          {promoPrice && (
-            <div className="absolute top-2 left-2">
-              <Badge className="bg-red-500 text-white border-0 font-bold text-[11px] px-2 shadow inline-flex items-center gap-1">
-                <Tag className="h-3 w-3" />
-                {showPrice && discountPct && discountPct > 0
-                  ? `-${discountPct}% OFERTA`
-                  : tr("part.onPromotion", lang).toUpperCase()}
-              </Badge>
             </div>
           )}
 
@@ -166,30 +111,7 @@ export default function QuotePartCard({ part, inCart, onAdd, onViewDetail, lang 
           {/* Code */}
           <p className="font-mono text-[10px] text-muted-foreground/80">#{part.material}</p>
 
-          {/* Price (authenticated internal users only) — public sees "Price on request" */}
-          <div className="mt-1">
-            {showPrice && price > 0 ? (
-              <>
-                {promoPrice ? (
-                  <div className="flex items-baseline gap-2 flex-wrap">
-                    <span className="text-lg font-bold text-red-600">{fmtPrice(promoPrice, lang)}</span>
-                    <span className="text-xs text-muted-foreground line-through">{fmtPrice(price, lang)}</span>
-                  </div>
-                ) : (
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-[10px] text-muted-foreground">{priceLabel}</span>
-                    <span className="text-lg font-bold text-foreground">{fmtPrice(finalPrice, lang)}</span>
-                  </div>
-                )}
-              </>
-            ) : (
-              <span className="text-xs text-muted-foreground italic">
-                {tr("part.priceOnRequest", lang)}
-              </span>
-            )}
-          </div>
-
-          {/* Single contextual badge */}
+          {/* Stock status */}
           <div className="min-h-[20px]">
             {isReadyToShip ? (
               <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-600">
